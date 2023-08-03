@@ -92,9 +92,9 @@ class Triggers {
 		this._started = true;
 		this._triggers = [...triggers];
 
-		firedTriggers.forEach((triggerId) => {
+		firedTriggers.forEach(({ _id }) => {
 			this._triggers.forEach((trigger) => {
-				if (trigger._id === triggerId) {
+				if (trigger._id === _id) {
 					trigger.skip = true;
 				}
 			});
@@ -127,7 +127,7 @@ class Triggers {
 						ts: ts.toISOString(),
 						_id: createToken(),
 						trigger: true,
-						triggerAfterRegistration: conditions.some((c) => c.name === 'after-guest-registration'),
+						triggerAfterRegistration: conditions.some((c) => c.name === 'after-guest-registration');,
 					};
 
 					await store.setState({
@@ -139,6 +139,7 @@ class Triggers {
 							({ ts }) => ts,
 						),
 					});
+
 					await processUnread();
 
 					if (agent && agent._id) {
@@ -150,6 +151,7 @@ class Triggers {
 					if (!foundCondition) {
 						route('/trigger-messages');
 					}
+
 					store.setState({ minimized: false });
 				});
 			}
@@ -157,7 +159,7 @@ class Triggers {
 
 		if (trigger.runOnce) {
 			trigger.skip = true;
-			firedTriggers.push(trigger._id);
+			firedTriggers.push(trigger);
 			store.setState({ firedTriggers });
 		}
 	}

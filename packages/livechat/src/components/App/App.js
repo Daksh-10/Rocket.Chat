@@ -49,9 +49,9 @@ export class App extends Component {
 					departments = [],
 				},
 				gdpr: { accepted: gdprAccepted },
-				triggered,
 				user,
 			} = this.props;
+			const { firedTriggers = [] } = store.state;
 
 			setInitCookies();
 
@@ -65,16 +65,17 @@ export class App extends Component {
 			}
 
 			const showDepartment = departments.filter((dept) => dept.showOnRegistration).length > 0;
-			const pendingTriggers = triggers.some((trigger) =>
+			const hasPendingTriggers = triggers.some((trigger) =>
 				trigger.conditions.some((condition) => condition.name === 'chat-opened-by-visitor'),
 			);
 
+			const hasTriggeredMessages = firedTriggers.some((trigger) =>
+				trigger.conditions.some((condition) => condition.name !== 'after-guest-registration'),
+			);
+
+			const isAnyFieldVisible = nameFieldRegistrationForm || emailFieldRegistrationForm || showDepartment;
 			const showRegistrationForm =
-				registrationForm &&
-				(nameFieldRegistrationForm || emailFieldRegistrationForm || showDepartment) &&
-				!triggered &&
-				!pendingTriggers &&
-				!(user && user.token);
+				registrationForm && isAnyFieldVisible && !hasTriggeredMessages && !hasPendingTriggers && !(user && user.token);
 
 			if (showRegistrationForm) {
 				return route('/register');
